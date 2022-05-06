@@ -9,6 +9,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import top.xlaoer.nowcodercommunity.dao.UserMapper;
 import top.xlaoer.nowcodercommunity.entity.User;
+import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 import top.xlaoer.nowcodercommunity.util.MailClient;
 
@@ -22,7 +23,7 @@ import java.util.Random;
  * @date 2022/5/3 20:25
  */
 @Service
-public class UserService {
+public class UserService implements CommunityConstant {
     @Autowired
     private UserMapper userMapper;
 
@@ -88,20 +89,17 @@ public class UserService {
         return map;
     }
 
-    public Map<String, Object> activation(int id, String code) {
-        if(id<0||StringUtils.isBlank(code))return null;
+    public int activation(int id, String code) {
+        if(id<0||StringUtils.isBlank(code))return ACTIVATION_FAILURE;
         User user = userMapper.selectById(id);
-        HashMap<String, Object> map = new HashMap<>();
         if (code.equals(user.getActivationCode())) {
             if (user.getStatus() == 0) {
                 userMapper.updateStatus(id, 1);
-                map.put("msg", "帐号激活成功！");
+                return ACTIVATION_SUCCESS;
             } else {
-                map.put("msg", "您的账号已激活，请勿重复激活！");
+                return ACTIVATION_REPEAT;
             }
-        } else {
-            map.put("msg", "激活码有误，请重新注册");
         }
-        return map;
+        return CommunityConstant.ACTIVATION_FAILURE;
     }
 }

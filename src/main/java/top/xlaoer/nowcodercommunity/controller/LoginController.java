@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import top.xlaoer.nowcodercommunity.entity.User;
 import top.xlaoer.nowcodercommunity.service.UserService;
+import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import java.util.Map;
  * @date 2022/5/6 11:46
  */
 @Controller
-public class LoginController {
+public class LoginController implements CommunityConstant {
 
     @Autowired
     private UserService userService;
@@ -51,14 +52,18 @@ public class LoginController {
 
     @RequestMapping(path = "/activation/{uid}/{code}", method = RequestMethod.GET)
     public String activation(Model model,@PathVariable("uid")int id,@PathVariable("code")String code) {
-        Map<String, Object> map = userService.activation(id,code);
+        int result= userService.activation(id,code);
         //注册成功
-        if (map == null || map.isEmpty()) {
-            model.addAttribute("msg", "参数错误");
+        if (result == ACTIVATION_SUCCESS) {
+            model.addAttribute("msg", "帐号激活成功！");
+            model.addAttribute("target", "/login");
+        }else if(result == ACTIVATION_FAILURE){
+            model.addAttribute("msg", "激活失败，您提供的激活码不正确！");
+            model.addAttribute("target", "/index");
         }else{
-            model.addAttribute("msg", map.get("msg"));
+            model.addAttribute("msg","您的账号已激活，请勿重复激活！");
+            model.addAttribute("target", "/index");
         }
-        model.addAttribute("target", "/index");
         return "/site/operate-result";
 
 
