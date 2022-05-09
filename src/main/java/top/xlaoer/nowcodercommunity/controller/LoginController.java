@@ -1,5 +1,8 @@
 package top.xlaoer.nowcodercommunity.controller;
 
+import com.google.code.kaptcha.Producer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +12,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import top.xlaoer.nowcodercommunity.entity.User;
 import top.xlaoer.nowcodercommunity.service.UserService;
 import top.xlaoer.nowcodercommunity.util.CommunityConstant;
+import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -19,8 +29,13 @@ import java.util.Map;
 @Controller
 public class LoginController implements CommunityConstant {
 
+    private Logger logger = LoggerFactory.getLogger(LoginController.class);
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private Producer kaptchaProducer;
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
@@ -67,6 +82,20 @@ public class LoginController implements CommunityConstant {
         return "/site/operate-result";
 
 
+    }
+
+    @RequestMapping(path = "/kaptcha",method = RequestMethod.GET)
+    public void getKaptcha(HttpServletResponse response, HttpSession session){
+        response.setContentType("image/png");
+        String text = kaptchaProducer.createText();
+        BufferedImage image = kaptchaProducer.createImage(text);
+        session.setAttribute("kaptcha",text);
+        try {
+            ServletOutputStream outputStream = response.getOutputStream();
+            ImageIO.write(image,"png",outputStream);
+        } catch (IOException e) {
+            logger.error("获取验证码出错"+e.getMessage());
+        }
     }
 
 
