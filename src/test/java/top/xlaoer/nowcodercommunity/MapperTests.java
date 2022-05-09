@@ -1,15 +1,14 @@
 package top.xlaoer.nowcodercommunity;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import top.xlaoer.nowcodercommunity.dao.DiscussPostMapper;
+import top.xlaoer.nowcodercommunity.dao.LoginTicketMapper;
 import top.xlaoer.nowcodercommunity.dao.UserMapper;
 import top.xlaoer.nowcodercommunity.entity.DiscussPost;
+import top.xlaoer.nowcodercommunity.entity.LoginTicket;
 import top.xlaoer.nowcodercommunity.entity.User;
 
 import java.util.Date;
@@ -28,6 +27,9 @@ class MapperTests {
 
     @Autowired
     private DiscussPostMapper discussPostMapper;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Test
     public void selectById() {
@@ -60,7 +62,16 @@ class MapperTests {
         for(DiscussPost discussPost:discussPosts){
             System.out.println(discussPost);
         }
+    }
 
-
+    @Test
+    public void insertLoginTicket(){
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setTicket("test");
+        loginTicket.setUserId(1);
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date());
+        loginTicketMapper.insertLoginTicket(loginTicket);
+        System.out.println(loginTicket.getId());
     }
 }

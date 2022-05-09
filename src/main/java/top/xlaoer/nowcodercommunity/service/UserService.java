@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import top.xlaoer.nowcodercommunity.dao.LoginTicketMapper;
 import top.xlaoer.nowcodercommunity.dao.UserMapper;
+import top.xlaoer.nowcodercommunity.entity.LoginTicket;
 import top.xlaoer.nowcodercommunity.entity.User;
 import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
@@ -35,6 +37,9 @@ public class UserService implements CommunityConstant {
 
     @Autowired
     private MailClient mailClient;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     public User findUserById(int id) {
         return userMapper.selectById(id);
@@ -101,5 +106,58 @@ public class UserService implements CommunityConstant {
             }
         }
         return CommunityConstant.ACTIVATION_FAILURE;
+    }
+
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
+
+        Map<String, Object> map = new HashMap<>();
+
+        // 空值处理
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "账号不能为空！");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空！");
+            return map;
+        }
+
+        // 验证账号
+        User user = userMapper.selectByUserName(username);
+        if (user == null) {
+            map.put("usernameMsg", "该账号不存在！");
+            return map;
+        }
+
+        // 判断账号是否激活
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "该账号未激活！");
+            return map;
+        }
+
+        // 验证密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "密码不正确！");
+            return map;
+        }
+
+        // 生成登录凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+
+        // 将登录凭证保存到mysql
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        map.put("ticket", loginTicket.getTicket());
+
+        return map;
+    }
+
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
     }
 }
