@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.xlaoer.nowcodercommunity.dao.LoginTicketMapper;
+import top.xlaoer.nowcodercommunity.interceptor.LoginRequiredInterceptor;
 import top.xlaoer.nowcodercommunity.interceptor.LoginTicketInterceptor;
 
 /**
@@ -18,9 +19,15 @@ public class WebMVCConfig implements WebMvcConfigurer {
     @Autowired
     private LoginTicketInterceptor loginTicketInterceptor;
 
+    @Autowired
+    private LoginRequiredInterceptor loginRequiredInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginTicketInterceptor)
+                .excludePathPatterns("/static/css/*.css", "/static/js/*.js", "/static/img/*.png", "/static/img/*.jpg", "/static/img/*.jpeg");
+
+        registry.addInterceptor(loginRequiredInterceptor)
                 .excludePathPatterns("/static/css/*.css", "/static/js/*.js", "/static/img/*.png", "/static/img/*.jpg", "/static/img/*.jpeg");
     }
 }
