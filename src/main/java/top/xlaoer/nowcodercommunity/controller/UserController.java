@@ -74,7 +74,7 @@ public class UserController {
         File file = new File(uploadPath+"/"+filename);
         try {
             headerImage.transferTo(file);
-            String headUrl = domain+contextPath+"/user/header/"+filename;
+            String headUrl = "http://"+domain+contextPath+"/user/header/"+filename;
             //修改用户的
             userService.updateHeaderUrl(hostHolder.getUser().getId(),headUrl);
         } catch (IOException e) {
