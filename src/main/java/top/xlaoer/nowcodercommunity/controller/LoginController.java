@@ -141,5 +141,39 @@ public class LoginController implements CommunityConstant {
         return "redirect:/login";
     }
 
+    @RequestMapping(value = "/forget", method = RequestMethod.GET)
+    public String getForgetPage() {
+        return "/site/forget";
+    }
 
+
+
+    @RequestMapping(value = "/forgetMail", method = RequestMethod.POST)
+    public String setForgetCode(String email,HttpSession session,Model model) {
+        String verCode = CommunityUtil.generateUUID().substring(0,6);
+        session.setAttribute(email,verCode);
+        userService.sendForgetMail(email,verCode);
+        return "/site/forget";
+    }
+
+    @RequestMapping(value = "/forget", method = RequestMethod.POST)
+    public String forget(String email,String verifycode,String password,HttpSession session,Model model) {
+        if(StringUtils.isBlank(email)){
+            model.addAttribute("emailMsg","邮箱不能为空");
+            return "/site/forget";
+        }
+        String code = (String) session.getAttribute(email);
+        if(StringUtils.isBlank(verifycode)||!verifycode.equals(code)){
+            model.addAttribute("codeMsg","验证码错误或为空");
+            return "/site/forget";
+        }
+
+        User user = userService.selectByEmail(email);
+        if(user==null){
+            model.addAttribute("emailMsg","邮箱未注册");
+            return "/site/forget";
+        }
+        userService.updatePassword(user.getId(),CommunityUtil.md5(password+user.getSalt()));
+        return "/site/login";
+    }
 }

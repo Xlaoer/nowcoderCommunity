@@ -172,4 +172,27 @@ public class UserService implements CommunityConstant {
     public int updatePassword(int userId,String password){
         return userMapper.updatePassword(userId,password);
     }
+
+    public User selectByEmail(String email){
+        return userMapper.selectByEmail(email);
+    }
+
+    public void sendForgetMail(String email,String code) {
+        //验证有效性
+        if (StringUtils.isBlank(email)) {
+//            throw new IllegalArgumentException("email参数为空");
+            return;
+        }
+        if (StringUtils.isBlank(code)) {
+//            throw new IllegalArgumentException("code参数为空");
+            return;
+        }
+
+        Context context = new Context();
+        context.setVariable("email", email);
+        context.setVariable("code", code);
+
+        String process = templateEngine.process("/mail/forget", context);
+        mailClient.sendEmail(email,"找回帐号", process, true);
+    }
 }
