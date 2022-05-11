@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import top.xlaoer.nowcodercommunity.annotaion.LoginRequired;
+import top.xlaoer.nowcodercommunity.entity.User;
 import top.xlaoer.nowcodercommunity.service.UserService;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 import top.xlaoer.nowcodercommunity.util.HostHolder;
@@ -104,6 +105,26 @@ public class UserController {
             logger.error("获取头像失败"+e.getMessage());
         }
 
+    }
+
+    @LoginRequired
+    @RequestMapping(path = "/update",method = RequestMethod.POST)
+    public String updatePassword(String oldpassword,String newpassword,Model model){
+        if(StringUtils.isBlank(oldpassword)){
+            model.addAttribute("oldpasswordMsg","旧密码为空");
+            return "/site/setting";
+        }
+        if(StringUtils.isBlank(newpassword)){
+            model.addAttribute("newpasswordMsg","新密码为空");
+            return "/site/setting";
+        }
+        User user = hostHolder.getUser();
+        if(!user.getPassword().equals(CommunityUtil.md5(oldpassword+user.getSalt()))){
+            model.addAttribute("oldpasswordMsg","密码错误");
+            return "/site/setting";
+        }
+        userService.updatePassword(user.getId(),CommunityUtil.md5(newpassword+user.getSalt()));
+        return "redirect:/index";
     }
 
 
