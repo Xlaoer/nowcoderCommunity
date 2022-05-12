@@ -19,4 +19,6 @@ public interface DiscussPostMapper {
     List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
 
     int insertDiscussPost(DiscussPost discussPost);
+
+    DiscussPost selectDiscussPostById(int id);
 }
