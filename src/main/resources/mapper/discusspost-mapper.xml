@@ -6,6 +6,9 @@
     <sql id="selectFields">
         id,user_id,title,content,type,status,create_time,comment_count,score
     </sql>
+    <sql id="insertFields">
+        user_id,title,content,type,status,create_time,comment_count,score
+    </sql>
 
     <select id="selectDiscussPostRows" resultType="int">
         select count(*) from discuss_post where status!=2
@@ -23,4 +26,9 @@
         order by type desc,status desc,create_time desc
         limit #{offset},#{limit}
     </select>
+
+    <insert id="insertDiscussPost" parameterType="DiscussPost" keyProperty="id">
+        insert into discuss_post(<include refid="insertFields"></include>)
+        values(#{userId},#{title},#{content},#{type},#{status},#{createTime},#{commentCount},#{score})
+    </insert>
 </mapper>
