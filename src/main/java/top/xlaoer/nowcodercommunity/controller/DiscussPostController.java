@@ -7,14 +7,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import top.xlaoer.nowcodercommunity.entity.Comment;
 import top.xlaoer.nowcodercommunity.entity.DiscussPost;
+import top.xlaoer.nowcodercommunity.entity.Page;
 import top.xlaoer.nowcodercommunity.entity.User;
+import top.xlaoer.nowcodercommunity.service.CommentService;
 import top.xlaoer.nowcodercommunity.service.DiscussPostService;
 import top.xlaoer.nowcodercommunity.service.UserService;
+import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 import top.xlaoer.nowcodercommunity.util.HostHolder;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author Xlaoer
@@ -22,7 +26,7 @@ import java.util.Date;
  */
 @Controller
 @RequestMapping("/discuss")
-public class DiscussPostController {
+public class DiscussPostController implements CommunityConstant {
     @Autowired
     private DiscussPostService discussPostService;
 
@@ -31,6 +35,9 @@ public class DiscussPostController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CommentService commentService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -52,13 +59,60 @@ public class DiscussPostController {
     }
 
     @RequestMapping(path = "/detail/{discussPostId}", method = RequestMethod.GET)
-    public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model) {
+    public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
         // 查询帖子
         DiscussPost post = discussPostService.findDiscussPostById(discussPostId);
         model.addAttribute("post", post);
         // 查询帖子作者
         User user = userService.findUserById(post.getUserId());
         model.addAttribute("user", user);
+        // 回帖的分页信息
+        page.setLimit(5);
+        page.setPath("/discuss/detail/" + discussPostId);
+        page.setRows(post.getCommentCount());
+        List<Comment> commentList = commentService.findCommentsByEntity(
+                ENTITY_TYPE_POST, post.getId(), page.getOffset(), page.getLimit());
+        // 回帖VO列表
+        List<Map<String, Object>> commentVoList = new ArrayList<>();
+        if (commentList != null) {
+            //遍历每一条回帖
+            for (Comment comment : commentList) {
+                // 回帖的VO
+                Map<String, Object> commentVo = new HashMap<>();
+                commentVo.put("comment", comment);
+                commentVo.put("user", userService.findUserById(comment.getUserId()));
+
+                // 回帖的回复列表
+                List<Comment> replyList = commentService.findCommentsByEntity(
+                        ENTITY_TYPE_COMMENT, comment.getId(), 0, Integer.MAX_VALUE);
+                // 回帖的回复VO列表
+                List<Map<String, Object>> replyVoList = new ArrayList<>();
+                if (replyList != null) {
+                    for (Comment reply : replyList) {
+                        Map<String, Object> replyVo = new HashMap<>();
+                        replyVo.put("reply", reply);
+                        replyVo.put("user", userService.findUserById(reply.getUserId()));
+
+                        // 回复目标
+                        User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
+                        replyVo.put("target", target);
+                        replyVoList.add(replyVo);
+                    }
+                }
+                // 将每个回帖的回复添加到回帖VO对象中
+                commentVo.put("replys", replyVoList);
+
+                // 将回复数量添加进去
+                int replyCount = commentService.findCommentCount(ENTITY_TYPE_COMMENT, comment.getId());
+                commentVo.put("replyCount", replyCount);
+
+                commentVoList.add(commentVo);
+
+            }
+        }
+        //将回帖VO列表加入model中
+        model.addAttribute("comments", commentVoList);
+
         return "/site/discuss-detail";
     }
 }
