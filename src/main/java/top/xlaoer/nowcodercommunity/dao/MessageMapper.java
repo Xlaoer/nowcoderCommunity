@@ -68,4 +68,11 @@ public interface MessageMapper {
      * @return
      */
     int updateStatus(List<Integer> ids, int status);
+
+    /**
+     * 根据id寻找对应的消息
+     * @param id
+     * @return
+     */
+    Message findLetterById(int id);
 }

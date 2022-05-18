@@ -152,4 +152,19 @@ public class MessageController {
 
         return CommunityUtil.getJSONString(0);
     }
+
+    @RequestMapping(value = "/letter/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteLetter(String id) {
+        int mid = Integer.parseInt(id);
+        Message tobeDeletedLetter = messageService.findLetterById(mid);
+        if(tobeDeletedLetter==null){
+            return CommunityUtil.getJSONString(1, "消息不存在");
+        }
+        if(tobeDeletedLetter.getFromId()!=hostHolder.getUser().getId()){
+            return CommunityUtil.getJSONString(1, "不能删除别人发送的消息哦");
+        }
+        messageService.deleteMessage(mid);
+        return CommunityUtil.getJSONString(0);
+    }
 }

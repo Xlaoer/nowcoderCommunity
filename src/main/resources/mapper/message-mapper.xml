@@ -76,4 +76,9 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="findLetterById" resultType="Message">
+        select <include refid="selectFields"></include>
+        from message where id = #{id}
+    </select>
 </mapper>

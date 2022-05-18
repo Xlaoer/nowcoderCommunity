@@ -7,6 +7,7 @@ import top.xlaoer.nowcodercommunity.dao.MessageMapper;
 import top.xlaoer.nowcodercommunity.entity.Message;
 import top.xlaoer.nowcodercommunity.util.SensitiveFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,5 +50,15 @@ public class MessageService {
 
     public int readMessage(List<Integer> ids) {
         return messageMapper.updateStatus(ids, 1);
+    }
+
+    public int deleteMessage(int id){
+        ArrayList<Integer> ids = new ArrayList<>();
+        ids.add(id);
+        return messageMapper.updateStatus(ids, 2);
+    }
+
+    public Message findLetterById(int id){
+        return messageMapper.findLetterById(id);
     }
 }
