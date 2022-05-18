@@ -2,6 +2,7 @@ package top.xlaoer.nowcodercommunity.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 import top.xlaoer.nowcodercommunity.dao.MessageMapper;
 import top.xlaoer.nowcodercommunity.entity.Message;
 import top.xlaoer.nowcodercommunity.util.SensitiveFilter;
@@ -38,5 +39,15 @@ public class MessageService {
 
     public int findLetterUnreadCount(int userId, String conversationId) {
         return messageMapper.selectLetterUnreadCount(userId,conversationId);
+    }
+
+    public int addMessage(Message message) {
+        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        message.setContent(sensitiveFilter.filter(message.getContent()));
+        return messageMapper.insertMessage(message);
+    }
+
+    public int readMessage(List<Integer> ids) {
+        return messageMapper.updateStatus(ids, 1);
     }
 }

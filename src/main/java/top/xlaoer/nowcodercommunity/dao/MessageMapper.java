@@ -52,4 +52,20 @@ public interface MessageMapper {
      * @return
      */
     int selectLetterUnreadCount(int userId, String conversationId);
+
+
+    /**
+     * 新增一个消息
+     * @param message
+     * @return
+     */
+    int insertMessage(Message message);
+
+    /**
+     * 更新多条消息的状态
+     * @param ids
+     * @param status
+     * @return
+     */
+    int updateStatus(List<Integer> ids, int status);
 }
