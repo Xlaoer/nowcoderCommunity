@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import top.xlaoer.nowcodercommunity.annotaion.LoginRequired;
 import top.xlaoer.nowcodercommunity.entity.User;
+import top.xlaoer.nowcodercommunity.service.LikeService;
 import top.xlaoer.nowcodercommunity.service.UserService;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 import top.xlaoer.nowcodercommunity.util.HostHolder;
@@ -46,6 +47,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     @LoginRequired
     @RequestMapping(path = "/setting",method = RequestMethod.GET)
@@ -127,6 +131,21 @@ public class UserController {
         return "redirect:/index";
     }
 
+    // 个人主页
+    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在!");
+        }
+        // 用户
+        model.addAttribute("user", user);
+        // 点赞数量
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+
+        return "/site/profile";
+    }
 
 
 }
