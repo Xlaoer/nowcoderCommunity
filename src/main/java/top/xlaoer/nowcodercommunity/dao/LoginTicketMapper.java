@@ -8,6 +8,7 @@ import top.xlaoer.nowcodercommunity.entity.LoginTicket;
  * @date 2022/5/9 16:40
  */
 @Mapper
+@Deprecated //废弃注解
 public interface LoginTicketMapper {
     @Insert({
             "insert into login_ticket(user_id,ticket,status,expired) ",
