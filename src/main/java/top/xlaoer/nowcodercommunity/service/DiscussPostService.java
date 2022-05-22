@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 import top.xlaoer.nowcodercommunity.dao.DiscussPostMapper;
 import top.xlaoer.nowcodercommunity.entity.DiscussPost;
+import top.xlaoer.nowcodercommunity.entity.ReplyPostResult;
 import top.xlaoer.nowcodercommunity.util.SensitiveFilter;
 
 import java.util.List;
@@ -50,5 +51,9 @@ public class DiscussPostService {
 
     public int updateCommentCount(int entityId, int commentCount) {
         return discussPostMapper.updateCommentCount(entityId,commentCount);
+    }
+
+    public List<ReplyPostResult> findReplyDiscussPosts(int userId, int offset, int limit) {
+        return discussPostMapper.selectReplyDiscussPosts(userId,offset,limit);
     }
 }

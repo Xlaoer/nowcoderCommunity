@@ -3,6 +3,7 @@ package top.xlaoer.nowcodercommunity.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import top.xlaoer.nowcodercommunity.entity.DiscussPost;
+import top.xlaoer.nowcodercommunity.entity.ReplyPostResult;
 
 import java.util.List;
 
@@ -23,4 +24,6 @@ public interface DiscussPostMapper {
     DiscussPost selectDiscussPostById(int id);
 
     int updateCommentCount(int id, int commentCount);
+
+    List<ReplyPostResult> selectReplyDiscussPosts(int userId, int offset, int limit);
 }
