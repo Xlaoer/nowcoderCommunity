@@ -73,7 +73,8 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>2.0.2</version>
+            <version>1.2.75</version>
+<!--        fastjson版本高导致在producer创建event时有postId，但consumer拿到后parse存postId的map为空了的bug，从而导致无法查看点赞/回复的详情页-->
         </dependency>
 
         <dependency>
