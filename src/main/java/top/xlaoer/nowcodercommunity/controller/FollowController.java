@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import top.xlaoer.nowcodercommunity.entity.Event;
 import top.xlaoer.nowcodercommunity.entity.Page;
 import top.xlaoer.nowcodercommunity.entity.User;
+import top.xlaoer.nowcodercommunity.event.EventProducer;
 import top.xlaoer.nowcodercommunity.service.FollowService;
 import top.xlaoer.nowcodercommunity.service.UserService;
 import top.xlaoer.nowcodercommunity.util.CommunityConstant;
@@ -34,12 +36,25 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
+
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
 
         followService.follow(user.getId(), entityType, entityId);
+
+        // 触发关注事件
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
 
         return CommunityUtil.getJSONString(0, "已关注!");
     }
