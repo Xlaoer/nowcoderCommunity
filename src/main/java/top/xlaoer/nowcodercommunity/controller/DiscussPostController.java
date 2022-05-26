@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import top.xlaoer.nowcodercommunity.entity.Comment;
-import top.xlaoer.nowcodercommunity.entity.DiscussPost;
-import top.xlaoer.nowcodercommunity.entity.Page;
-import top.xlaoer.nowcodercommunity.entity.User;
+import top.xlaoer.nowcodercommunity.entity.*;
+import top.xlaoer.nowcodercommunity.event.EventProducer;
 import top.xlaoer.nowcodercommunity.service.CommentService;
 import top.xlaoer.nowcodercommunity.service.DiscussPostService;
 import top.xlaoer.nowcodercommunity.service.LikeService;
@@ -43,6 +41,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -57,6 +58,14 @@ public class DiscussPostController implements CommunityConstant {
         post.setContent(content);
         post.setCreateTime(new Date());
         discussPostService.insertDiscussPost(post);
+
+        // 触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(post.getId());
+        eventProducer.fireEvent(event);
 
         // 报错的情况，将来统一处理
         return CommunityUtil.getJSONString(0, "发布成功！");
