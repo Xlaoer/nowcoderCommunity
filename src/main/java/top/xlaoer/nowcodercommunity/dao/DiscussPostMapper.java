@@ -26,4 +26,8 @@ public interface DiscussPostMapper {
     int updateCommentCount(int id, int commentCount);
 
     List<ReplyPostResult> selectReplyDiscussPosts(int userId, int offset, int limit);
+
+    int updateType(int id, int type);
+
+    int updateStatus(int id, int status);
 }

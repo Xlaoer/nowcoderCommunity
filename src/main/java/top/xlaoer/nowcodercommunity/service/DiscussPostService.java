@@ -56,4 +56,12 @@ public class DiscussPostService {
     public List<ReplyPostResult> findReplyDiscussPosts(int userId, int offset, int limit) {
         return discussPostMapper.selectReplyDiscussPosts(userId,offset,limit);
     }
+
+    public int updateType(int id, int type) {
+        return discussPostMapper.updateType(id, type);
+    }
+
+    public int updateStatus(int id, int status) {
+        return discussPostMapper.updateStatus(id, status);
+    }
 }

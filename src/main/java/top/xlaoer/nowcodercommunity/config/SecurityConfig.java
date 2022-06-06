@@ -50,6 +50,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         AUTHORITY_ADMIN,
                         AUTHORITY_MODERATOR
                 )
+                .antMatchers(
+                        "/discuss/top",
+                        "/discuss/wonderful"
+                )
+                .hasAnyAuthority(
+                        AUTHORITY_MODERATOR
+                )
+                .antMatchers(
+                        "/discuss/delete"
+                )
+                .hasAnyAuthority(
+                        AUTHORITY_ADMIN
+                )
                 .anyRequest().permitAll()
                 // 这里可以关闭csrf验证，默认是开启的，如果启用则需要在模板页面和模板js文件引用CSRF令牌，否则权限认证不通过。
                 .and().csrf().disable();
