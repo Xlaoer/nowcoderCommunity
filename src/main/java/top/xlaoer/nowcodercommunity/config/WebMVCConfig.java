@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.xlaoer.nowcodercommunity.dao.LoginTicketMapper;
+import top.xlaoer.nowcodercommunity.interceptor.DataInterceptor;
 import top.xlaoer.nowcodercommunity.interceptor.LoginRequiredInterceptor;
 import top.xlaoer.nowcodercommunity.interceptor.LoginTicketInterceptor;
 import top.xlaoer.nowcodercommunity.interceptor.MessageInterceptor;
@@ -27,6 +28,9 @@ public class WebMVCConfig implements WebMvcConfigurer {
     @Autowired
     private MessageInterceptor messageInterceptor;
 
+    @Autowired
+    private DataInterceptor dataInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginTicketInterceptor)
@@ -36,6 +40,9 @@ public class WebMVCConfig implements WebMvcConfigurer {
 //                .excludePathPatterns("/static/css/*.css", "/static/js/*.js", "/static/img/*.png", "/static/img/*.jpg", "/static/img/*.jpeg");
 
         registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("/static/css/*.css", "/static/js/*.js", "/static/img/*.png", "/static/img/*.jpg", "/static/img/*.jpeg");
+
+        registry.addInterceptor(dataInterceptor)
                 .excludePathPatterns("/static/css/*.css", "/static/js/*.js", "/static/img/*.png", "/static/img/*.jpg", "/static/img/*.jpeg");
     }
 }
