@@ -56,7 +56,7 @@ class MapperTests {
         System.out.println(i);
         int i1 = discussPostMapper.selectDiscussPostRows(1);
         System.out.println(i1);
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(1, 1, 10);
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(1, 1, 10,0);
 //        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(101, 1, 10);
 //        if(discussPosts.isEmpty())return;
         for(DiscussPost discussPost:discussPosts){

@@ -17,7 +17,7 @@ public interface DiscussPostMapper {
     //当方法只有一个参数时，并且该参数应用在<if>上时，就必须用@Param注解为该参数取别名
     int selectDiscussPostRows(@Param("userId") int userId);
 
-    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
+    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit , int orderMode);
 
     int insertDiscussPost(DiscussPost discussPost);
 
