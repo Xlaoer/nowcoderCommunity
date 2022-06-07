@@ -1,6 +1,7 @@
 package top.xlaoer.nowcodercommunity.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import top.xlaoer.nowcodercommunity.service.CommentService;
 import top.xlaoer.nowcodercommunity.service.DiscussPostService;
 import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 import top.xlaoer.nowcodercommunity.util.HostHolder;
+import top.xlaoer.nowcodercommunity.util.RedisKeyUtil;
 
 import java.util.Date;
 
@@ -35,6 +37,9 @@ public class CommentController implements CommunityConstant {
 
     @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @RequestMapping(value = "/add/{discussPostId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {
@@ -67,6 +72,10 @@ public class CommentController implements CommunityConstant {
                     .setEntityId(discussPostId);
             eventProducer.fireEvent(event);
         }
+
+        // 分数发生变化，加入缓存队列，配合Quartz定时计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, discussPostId);
 
         return "redirect:/discuss/detail/" + discussPostId;
     }

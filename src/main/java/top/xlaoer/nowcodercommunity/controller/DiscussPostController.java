@@ -1,6 +1,7 @@
 package top.xlaoer.nowcodercommunity.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import top.xlaoer.nowcodercommunity.service.UserService;
 import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 import top.xlaoer.nowcodercommunity.util.HostHolder;
+import top.xlaoer.nowcodercommunity.util.RedisKeyUtil;
 
 import java.util.*;
 
@@ -44,6 +46,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -66,6 +71,11 @@ public class DiscussPostController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(post.getId());
         eventProducer.fireEvent(event);
+
+
+        // 分数发生变化，加入缓存队列，配合Quartz定时计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, post.getId());
 
         // 报错的情况，将来统一处理
         return CommunityUtil.getJSONString(0, "发布成功！");
@@ -181,6 +191,10 @@ public class DiscussPostController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
+
+        // 分数发生变化，加入缓存队列，配合Quartz定时计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, id);
 
         return CommunityUtil.getJSONString(0);
     }

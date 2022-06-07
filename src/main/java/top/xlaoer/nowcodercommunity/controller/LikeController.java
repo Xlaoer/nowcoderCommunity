@@ -1,6 +1,7 @@
 package top.xlaoer.nowcodercommunity.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -12,6 +13,7 @@ import top.xlaoer.nowcodercommunity.service.LikeService;
 import top.xlaoer.nowcodercommunity.util.CommunityConstant;
 import top.xlaoer.nowcodercommunity.util.CommunityUtil;
 import top.xlaoer.nowcodercommunity.util.HostHolder;
+import top.xlaoer.nowcodercommunity.util.RedisKeyUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,9 @@ public class LikeController implements CommunityConstant {
 
     @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
     @RequestMapping(value = "/like", method = RequestMethod.POST)
@@ -61,6 +66,13 @@ public class LikeController implements CommunityConstant {
         Map<String, Object> map = new HashMap<>();
         map.put("likeCount", likeCount);
         map.put("likeStatus", likeStatus);
+
+        // 如果是对帖子点赞时，需重新计算帖子分数
+        if (entityType == ENTITY_TYPE_POST) {
+            // 计算帖子分数，将其加入缓存队列
+            String redisKey = RedisKeyUtil.getPostScoreKey();
+            redisTemplate.opsForSet().add(redisKey, postId);
+        }
 
         return CommunityUtil.getJSONString(0, null, map);
     }
