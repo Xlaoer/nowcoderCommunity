@@ -85,4 +85,9 @@ public class RedisKeyUtil {
     public static String getPostScoreKey() {
         return PREFIX_POST + SPLIT + "score";
     }
+
+    // 热帖的key
+    public static String getHotPostKey() {
+        return PREFIX_POST+SPLIT+"hot";
+    }
 }
